@@ -2,6 +2,7 @@ const userService = require("../services/user.services.js");
 const { Roles } = require("../constants/roles.js");
 
 class UserController {
+    
     async signup(req, res) {
         try {
             const { name, password, email, role } = req.body;

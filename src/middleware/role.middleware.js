@@ -12,7 +12,7 @@ function authorizeRoles(...allowedRoles) {
         if (!allowedRoles.includes(req.user.role)) {
             return res.status(403).json({
                 success: false,
-                message: `Access denied. Requires one of the following roles: ${allowedRoles.join(", ")}`
+                message: "Access denied."
             });
         }
 

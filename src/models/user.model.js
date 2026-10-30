@@ -22,9 +22,8 @@ const userschema = new mongoose.Schema(
         },
         role: {
             type: String,
-            enum: { 
+            enum: {
                 values: ROLES_LIST,
-                message: "{VALUE} is not a valid role. Allowed roles: " + ROLES_LIST.join(", ")
             },
             default: Roles.STUDENT,
             required: [true, "Role is Required"]

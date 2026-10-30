@@ -6,6 +6,7 @@ const userProfile = require("../models/user.profile.model.js");
 const { Roles } = require("../constants/roles.js");
 
 class UserServices {
+
     async signup(name, email, password, role = Roles.STUDENT) {
         const hashedpassword = await bcrypt.hash(String(password), 10);
         const existingUser = await User.findOne({ email });
@@ -48,15 +49,8 @@ class UserServices {
         return faculties;
     }
 
-    async getAllStudents(isActive) {
-        const filter = { role: Roles.STUDENT };
-        if (isActive !== undefined) {
-            filter.isActive = (isActive === "true" || isActive === true);
-        } else {
-            // Default to active students
-            filter.isActive = true;
-        }
-        const students = await User.find(filter).populate("profile");
+    async getAllStudents() {
+        const students = await User.find({ role: Roles.STUDENT, isActive: true }).populate("profile");
         return students;
     }
 
@@ -91,14 +85,11 @@ class UserServices {
             throw new Error("User not found");
         }
 
-        // Authorization checks
         if (currentUser.role === Roles.STUDENT) {
-            // Student can only update their own profile
             if (currentUser.id.toString() !== id.toString()) {
                 throw new Error("Students can only update their own profile");
             }
         } else if (currentUser.role === Roles.FACULTY) {
-            // Faculty can update all student profiles OR their own profile
             const isSelf = currentUser.id.toString() === id.toString();
             const isTargetStudent = targetUser.role === Roles.STUDENT;
 
@@ -106,13 +97,10 @@ class UserServices {
                 throw new Error("Faculty can only update their own profile or student profiles");
             }
         }
-
         const data = { ...updateData };
         if (data.password) {
             data.password = await bcrypt.hash(String(data.password), 10);
         }
-
-        // Prevent unauthorized role manipulation if needed
         if (currentUser.role === Roles.STUDENT && data.role) {
             delete data.role;
         }
@@ -183,7 +171,6 @@ class UserServices {
             throw new Error("Invalid User ID");
         }
 
-        // Faculty can only add their own profiles alone; Student can also add only their own profile
         if (currentUser.id.toString() !== userid.toString()) {
             throw new Error("Users can only create/add their own profile");
         }
@@ -220,10 +207,6 @@ class UserServices {
         if (!targetUser) {
             throw new Error("User not found");
         }
-
-        // Authorization rule:
-        // Student only update their own profile
-        // Faculty can update all students profile and their own profile
         if (currentUser.role === Roles.STUDENT) {
             if (currentUser.id.toString() !== userid.toString()) {
                 throw new Error("Students can only update their own profile");
