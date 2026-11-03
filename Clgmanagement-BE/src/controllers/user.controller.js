@@ -9,7 +9,7 @@ class UserController {
             if (!name || !email || !password) {
                 return res.status(400).json({ success: false, message: "All Fields are required" });
             }
-            const assignedRole = role || Roles.STUDENT;
+            const assignedRole = role ? role.toUpperCase() : Roles.STUDENT;
             const result = await userService.signup(name, email, password, assignedRole);
             return res.status(201).json({
                 success: true,
